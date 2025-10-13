@@ -636,8 +636,7 @@ export default function Page() {
                             <div className="mt-2 text-sm text-gray-600">
                               Orders: <span className="font-semibold text-gray-800">{b.count}</span>
                               <span className="mx-2">—</span>
-                              <span className="text-xs text-gray-400">sample dates: {Array.isArray(b.sample) ? b.sample.map(s => s.date ? new Date(s.date).toLocaleDateString() : '-').slice(0,3).join(', ') : '-'}</span>
-                            </div>
+                             </div>
                           </div>
 
                           {/* If bundle has Gummies -> enhanced breakdown (improved UI, colored bars below text) */}

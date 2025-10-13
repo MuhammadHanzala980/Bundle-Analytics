@@ -635,8 +635,7 @@ export default function Page() {
 
                             <div className="mt-2 text-sm text-gray-600">
                               Orders: <span className="font-semibold text-gray-800">{b.count}</span>
-                              <span className="mx-2">—</span>
-                             </div>
+                              </div>
                           </div>
 
                           {/* If bundle has Gummies -> enhanced breakdown (improved UI, colored bars below text) */}

@@ -563,7 +563,6 @@ export default function Page() {
                                   <div className="text-lg font-semibold text-gray-800 flex items-center gap-2"> Gummies breakdown</div>
                                   <div className="text-xs text-gray-500">flavor distribution in this bundle</div>
                                 </div>
-                                <div className="text-xs text-gray-500">Total gummies variants: <span className="font-medium text-gray-700">{totalGummiesCount}</span></div>
                               </div>
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2025-10-13T14:42:14.552Z",
-  "lastPageFetched": 91,
-  "lastIndexInPage": 3,
-  "fetchedThisRun": 6703,
-  "totalSaved": 9003,
-  "lastFetchedIso": "2025-10-12T23:59:03.000Z",
+  "updatedAt": "2025-10-23T15:27:44.993Z",
+  "lastPageFetched": 115,
+  "lastIndexInPage": 35,
+  "fetchedThisRun": 9035,
+  "totalSaved": 11335,
+  "lastFetchedIso": "2025-10-23T03:20:55.000Z",
   "note": "Resumable by page+index. Orders saved as simplified objects (deduped by id)."
 }

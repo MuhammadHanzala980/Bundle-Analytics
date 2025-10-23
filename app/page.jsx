@@ -4,12 +4,9 @@ import React, { useEffect, useMemo, useState } from "react";
 
 /**
  * Bundle Analytics — Metorik-like bought-together behavior
- * Changes made:
- * 1) Counting/aggregation is done by productId (synthetic ids for gummies preserved)
- * 2) Orders with status: completed, processing, OR paid are considered eligible
- * 3) Bundle keys (for counting) are based on productId, while the UI still
- *    displays human-friendly bundle labels (displayName / variant info)
- *
+ * - productId-based counting
+ * - eligible statuses: completed / processing / paid
+ * - selectable date range (start / end) to filter orders
  */
 
 export default function Page() {
@@ -25,6 +22,12 @@ export default function Page() {
 
   // NEW: explodeGummies toggle
   const [explodeGummies, setExplodeGummies] = useState(false);
+
+  // Date range controls: default from 2024-02-01 to today
+  const DEFAULT_START = "2024-02-01"; // yyyy-mm-dd
+  const DEFAULT_END = new Date().toISOString().split("T")[0];
+  const [startDate, setStartDate] = useState(DEFAULT_START);
+  const [endDate, setEndDate] = useState(DEFAULT_END);
 
   const GUMMIES_FLAVORS = [
     "grape",
@@ -66,14 +69,30 @@ export default function Page() {
     return () => { cancelled = true; };
   }, []);
 
-  // total eligible orders (completed, processing, or paid)
+  // Filter orders by selected date range (uses date_created / date_created_gmt / date_modified)
+  const filteredOrders = useMemo(() => {
+    if (!Array.isArray(orders)) return [];
+    const start = startDate ? new Date(`${startDate}T00:00:00Z`) : null;
+    const end = endDate ? new Date(`${endDate}T23:59:59Z`) : null;
+    return orders.filter((o) => {
+      const ds = o?.date_created || o?.date_created_gmt || o?.date_modified || null;
+      if (!ds) return false;
+      const d = new Date(ds);
+      if (isNaN(d)) return false;
+      if (start && d < start) return false;
+      if (end && d > end) return false;
+      return true;
+    });
+  }, [orders, startDate, endDate]);
+
+  // total eligible orders (completed, processing, or paid) within selected range
   const totalEligibleOrders = useMemo(() => {
-    if (!Array.isArray(orders)) return 0;
-    return orders.reduce((acc, o) => {
+    if (!Array.isArray(filteredOrders)) return 0;
+    return filteredOrders.reduce((acc, o) => {
       const st = String(o?.status || "").toLowerCase();
       return acc + ((st === "completed" || st === "processing" || st === "paid") ? 1 : 0);
     }, 0);
-  }, [orders]);
+  }, [filteredOrders]);
 
   const PALETTE = [
     "#1F4B99", "#0B7546", "#B43E3E", "#D97706", "#7C3AED",
@@ -283,13 +302,13 @@ export default function Page() {
     return it.displayName;
   }
 
-  // Build bundles for sizes 1..7 using only completed/processing/paid orders
+  // Build bundles for sizes 1..7 using only completed/processing/paid orders (within selected range)
   const bundlesBySize = useMemo(() => {
     const maps = {};
     for (let s = 1; s <= 7; s++) maps[s] = new Map();
-    if (!Array.isArray(orders)) return Object.fromEntries(Object.entries(maps).map(([k]) => [k, []]));
+    if (!Array.isArray(filteredOrders)) return Object.fromEntries(Object.entries(maps).map(([k]) => [k, []]));
 
-    for (const order of orders) {
+    for (const order of filteredOrders) {
       const st = String(order?.status || "").toLowerCase();
       if (st !== "completed" && st !== "processing" && st !== "paid") continue;
 
@@ -338,7 +357,7 @@ export default function Page() {
         .sort((a, b) => b.count - a.count);
     }
     return out;
-  }, [orders, explodeGummies]);
+  }, [filteredOrders, explodeGummies]);
 
   const sizesToShow = useMemo(() => {
     const s = Number(selectedSize) || 1;
@@ -418,7 +437,7 @@ export default function Page() {
         <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900">Bundle Analytics — Products Bought Together</h1>
-            <p className="text-sm text-gray-600 mt-1">Select bundle size (1–7). Toggle <span className="font-medium">Show range</span> to display from selected size up to 7. Only <span className="italic">completed</span>, <span className="italic">processing</span> and <span className="italic">paid</span> orders are used.</p>
+            <p className="text-sm text-gray-600 mt-1">Select bundle size (1–7). Toggle <span className="font-medium">Show range</span> to display from selected size up to 7. Only <span className="italic">completed</span>, <span className="italic">processing</span> and <span className="italic">paid</span> orders (within the chosen date range) are used.</p>
           </div>
 
           <div className="text-sm text-gray-600">
@@ -443,15 +462,11 @@ export default function Page() {
                   ))}
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-gray-600 ml-2">
-                  <input type="checkbox" checked={showRangeToEnd} onChange={(e) => setShowRangeToEnd(e.target.checked)} className="h-4 w-4" />
-                  <span>Show range (selected → 7)</span>
-                </label>
+               
               </div>
 
               <div className="hidden sm:flex items-center gap-2">
-                <button onClick={() => { setVisiblePerSection(8); setQuery(""); }} className="px-3 py-1 bg-gray-100 rounded text-sm">Reset</button>
-                <button onClick={downloadCSV} className="px-3 py-1 bg-indigo-600 text-white rounded text-sm shadow">Export CSV</button>
+                 <button onClick={downloadCSV} className="px-3 py-1 bg-indigo-600 text-white rounded text-sm shadow">Export CSV</button>
 
                 <button
                   onClick={() => setExplodeGummies(v => !v)}
@@ -464,6 +479,15 @@ export default function Page() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Date range selector */}
+              <div className="flex items-center gap-2 bg-gray-50 border rounded px-3 py-1">
+                <label className="text-xs text-gray-600">From</label>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="ml-2 border rounded px-2 py-1 text-sm" />
+                <label className="text-xs text-gray-600 ml-2">To</label>
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="ml-2 border rounded px-2 py-1 text-sm" />
+                <button onClick={() => { setStartDate(DEFAULT_START); setEndDate(DEFAULT_END); }} className="ml-3 text-sm px-2 py-1 bg-gray-100 rounded">Reset</button>
+              </div>
+
               <div className="relative">
                 <input placeholder="Search bundle..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-10 pr-3 py-2 border rounded w-64 focus:ring-1 focus:ring-indigo-200" />
                 <div className="absolute left-3 top-2.5 text-gray-400 text-sm">🔎</div>
@@ -563,7 +587,7 @@ export default function Page() {
                                   <div className="text-lg font-semibold text-gray-800 flex items-center gap-2"> Gummies breakdown</div>
                                   <div className="text-xs text-gray-500">flavor distribution in this bundle</div>
                                 </div>
-                              </div>
+                               </div>
 
                               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {gummiesCounts.length > 0 ? gummiesCounts.map((g) => {

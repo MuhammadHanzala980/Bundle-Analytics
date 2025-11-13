@@ -10,6 +10,7 @@ export default function ReviewsPage() {
   const [error, setError] = useState(null)
   const [sort, setSort] = useState("latest")
   const [verified, setVerified] = useState("all")
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     fetchReviews(currentPage, sort, verified)
@@ -55,6 +56,31 @@ export default function ReviewsPage() {
     }
   }
 
+  const handleDownloadAllReviews = async () => {
+    setDownloading(true)
+    try {
+      const response = await fetch("/api/reviews/download")
+      if (!response.ok) {
+        throw new Error("Failed to download reviews")
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `reviews-${new Date().toISOString().split("T")[0]}.doc`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err) {
+      console.error("Error downloading reviews:", err)
+      alert("Failed to download reviews. Please try again.")
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   const parseReviewContent = (html) => {
     const div = document.createElement("div")
     div.innerHTML = html
@@ -84,7 +110,8 @@ export default function ReviewsPage() {
       <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">Customer Reviews</h1>
-         </div>
+          <p className="mt-2 text-slate-600">See what customers think about our products</p>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -92,7 +119,7 @@ export default function ReviewsPage() {
         {!loading && !error && reviews.length > 0 && (
           <div className="mb-6 flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              {/* <div>
+              <div>
                 <label className="block text-sm font-medium text-slate-700">Sort By</label>
                 <select
                   value={sort}
@@ -107,7 +134,7 @@ export default function ReviewsPage() {
                   <option value="highest">Highest Rating</option>
                   <option value="lowest">Lowest Rating</option>
                 </select>
-              </div> */}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">Verification</label>
@@ -125,6 +152,14 @@ export default function ReviewsPage() {
                 </select>
               </div>
             </div>
+
+            <button
+              onClick={handleDownloadAllReviews}
+              disabled={downloading}
+              className="rounded bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            >
+              {downloading ? "Downloading..." : "Download All Reviews"}
+            </button>
           </div>
         )}
 

@@ -9,8 +9,17 @@ export default function ReviewsWidget({ productId = null }) {
   // Replace this list with real product names from microdosify.com/shop/ when available.
   // If you want me to auto-populate this from the site, tell me and I'll add a small fetch/scrape (but you said no extra APIs).
   const PRODUCTS = [
-    "CALM ",
-    "Focus",
+    "Magic Mushroom Gummies",
+    "ILLUMINATE Capsules",
+    "FOCUS Capsules",
+    "Microdosing Starter Pack – Capsules",
+    "CREATE Capsules",
+    "CALM Capsules",
+    "ELEVATE Capsules",
+    "The Ultimate Guide to Microdosing",
+    "1 Hour Microdosing Coaching Call",
+    "30 Minute Microdosing Coaching Call",
+    "30 Day Experience Program",
   ]
 
   const [allReviews, setAllReviews] = useState([])
@@ -309,8 +318,7 @@ export default function ReviewsWidget({ productId = null }) {
       <div className="mb-4 flex gap-3 items-center">
         {/* Product dropdown (local array) */}
         <div>
-          <label className="block text-xs text-slate-600">Products</label>
-          <select value={selectedProductName} onChange={handleProductDropdownChange} className="rounded border px-3 py-2 text-sm">
+           <select value={selectedProductName} onChange={handleProductDropdownChange} className="rounded border px-3 py-2 text-sm">
             <option value="">All products</option>
             {PRODUCTS.map((p, i) => (
               <option key={i} value={p}>

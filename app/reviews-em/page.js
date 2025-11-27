@@ -455,7 +455,7 @@ export default function ReviewsWidget({ productId = null }) {
              {!fetchError && (
                  <>
                     <span>Showing <strong>{pageSlice.length}</strong> of <strong>{filteredReviews.length}</strong></span>
-                    {activeQuery && <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Query: &quot;{activeQuery}&quot;</span>}
+                    {activeQuery && <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Query: {activeQuery}</span>}
                  </>
              )}
         </div>

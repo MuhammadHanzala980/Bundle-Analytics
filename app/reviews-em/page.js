@@ -359,31 +359,52 @@ export default function ReviewsWidget({ productId = null }) {
     setCurrentPageView(1)
   }
 
-  // ReviewsWidget.js (Vercel App Par)
-// ... existing component logic ...
+  
 
+
+
+
+
+
+
+// ReviewsWidget.js file (Vercel App)
+
+// ... existing code ...
+
+// --- Dynamic Height Adjustment Logic (UPDATED) ---
 useEffect(() => {
-    // Function to calculate height and send message to the parent frame
+    // Height send karne ka function
     const sendHeight = () => {
+        // Document ki total scrollable height calculate karein
         const height = document.body.scrollHeight;
+        
+        // Parent window (WordPress site) ko message bhejein
         if (window.parent) {
             window.parent.postMessage({
                 height: height,
                 type: 'setIframeHeight'
-            }, '*'); 
-            // '*' means targetOrigin is not specified (use '*' if you don't know the exact domain)
+            }, '*');
         }
     };
     
-    // 1. Send height on initial load and whenever filteredReviews changes
+    // 1. Initial load, filter change, aur search change par height bhejein
     sendHeight();
 
-    // 2. Add an event listener for any window resize (just in case)
+    // 2. Window resize par height bhejein (safety ke liye)
     window.addEventListener('resize', sendHeight);
     
-    // Clean up the event listener
+    // Cleanup function
     return () => window.removeEventListener('resize', sendHeight);
-}, [filteredReviews]); // Depend on filteredReviews to update height when list changes
+
+// Dependency Array mein sabhi relevant states ko add karein
+// Taki jab bhi reviews list ya filters change hon, height update ho
+}, [filteredReviews, activeQuery, selectedProductName, filterStar, sortBy, currentPageView, perPageView]);
+// Note: filteredReviews useMemo mein in sab states par depend karta hai.
+// In sab ko explicitly daalne se height har relevant change par update hogi.
+
+// ... rest of the component ...
+
+
 
   // --- RENDER HELPERS ---
   

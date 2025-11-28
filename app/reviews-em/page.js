@@ -20,6 +20,7 @@ export default function ReviewsWidget({ productId = null }) {
     "30 Day Experience Program",
   ]
 
+  // Data State
   const [allReviews, setAllReviews] = useState([])
   const [loadedPages, setLoadedPages] = useState(0)
   const [totalPages, setTotalPages] = useState(null)
@@ -27,24 +28,26 @@ export default function ReviewsWidget({ productId = null }) {
   const [isFetchingAll, setIsFetchingAll] = useState(false)
   const [fetchError, setFetchError] = useState(null)
 
-  // product dropdown
+  // Filter & Search State
   const [selectedProductName, setSelectedProductName] = useState("")
+  const [filterStar, setFilterStar] = useState("all") // New: Filter by specific star
+  const [sortBy, setSortBy] = useState("newest")      // New: Sort order
 
-  // UI state
+  // UI State
   const [query, setQuery] = useState("")
   const [debouncedQuery, setDebouncedQuery] = useState("")
-  const [activeQuery, setActiveQuery] = useState("") // run-on-click or suggestion
+  const [activeQuery, setActiveQuery] = useState("") 
   const [suggestionsVisible, setSuggestionsVisible] = useState(false)
   const [currentPageView, setCurrentPageView] = useState(1)
   const [perPageView, setPerPageView] = useState(10)
 
-  // debounce typing for suggestions preview only
+  // Debounce typing for suggestions
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query.trim()), 220)
     return () => clearTimeout(t)
   }, [query])
 
-  // fetch helpers
+  // --- FETCHING LOGIC (Unchanged) ---
   const fetchPageFromServer = useCallback(
     async (page, perPage) => {
       const params = new URLSearchParams()
@@ -62,7 +65,6 @@ export default function ReviewsWidget({ productId = null }) {
     [productId],
   )
 
-  // startup: first page then background fetch
   useEffect(() => {
     let cancelled = false
     async function startup() {
@@ -85,7 +87,7 @@ export default function ReviewsWidget({ productId = null }) {
           setTotalReviewsCount(first.totalMatched || first.data.length)
         } else setTotalPages(null)
 
-        // background fetch pages sequentially
+        // Background fetch
         let page = 2
         const knownTotal = first.pagination?.totalPages ?? null
         while (!cancelled) {
@@ -124,7 +126,6 @@ export default function ReviewsWidget({ productId = null }) {
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPageFromServer])
 
   function dedupeAppend(prev, items) {
@@ -138,96 +139,156 @@ export default function ReviewsWidget({ productId = null }) {
     return String(input).replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim()
   }
 
-  // scoring function for closeness ranking
+  // --- NEW SEARCH LOGIC (Token Based) ---
+
+  // Helper to get tokens from a query string
+  function getTokens(q) {
+    if (!q) return []
+    return q.toLowerCase().split(/\s+/).filter(t => t.length > 0)
+  }
+
+  // Detailed scoring for sorting search results
   function scoreReviewForQuery(r, q) {
     if (!q) return 0
-    const ql = q.toLowerCase()
     const text = `${stripHtml(r.review || "")} ${r.reviewer || r.name || ""}`.toLowerCase()
+    const qLower = q.toLowerCase()
+    
     let score = 0
-    if (text === ql) score += 200
-    const idx = text.indexOf(ql)
-    if (idx === 0) score += 120
-    if (idx > 0) score += Math.max(0, 80 - idx) // earlier position -> more score
-    // occurrences
-    let occ = 0
-    let pos = 0
-    while (true) {
-      const i = text.indexOf(ql, pos)
-      if (i === -1) break
-      occ++
-      pos = i + ql.length
-    }
-    score += occ * 30
-    // reviewer match bonus
-    const reviewer = (r.reviewer || "").toLowerCase()
-    if (reviewer.includes(ql)) score += 40
-    // rating slight bias to higher rating
-    score += Number(r.rating || 0) * 2
+    
+    // 1. Exact Phrase Match (Highest Priority)
+    if (text.includes(qLower)) score += 100
+
+    // 2. Token Match (Word by Word)
+    const tokens = getTokens(q)
+    let matches = 0
+    tokens.forEach(token => {
+        if (text.includes(token)) {
+            score += 10
+            matches++
+        }
+    })
+
+    // Bonus for matching ALL tokens (even if not exact phrase)
+    if (matches === tokens.length && tokens.length > 1) score += 20
+
+    // 3. Recency/Rating Tie-Breakers (small weights)
+    score += (Number(r.rating) || 0) * 0.5
+
     return score
   }
 
-  // product-match helper
   function reviewMatchesProduct(r, productName) {
     if (!productName) return true
     const pn = productName.toLowerCase()
-    // 1) common property names
     if (r.product_name && String(r.product_name).toLowerCase().includes(pn)) return true
     if (r.product_title && String(r.product_title).toLowerCase().includes(pn)) return true
-    // 2) raw object 
     try {
       if (r.raw) {
         const rawText = JSON.stringify(r.raw).toLowerCase()
         if (rawText.includes(pn)) return true
       }
-    } catch (e) {
-      /* ignore stringify errors */
-    }
-    // 3) review text 
+    } catch (e) {}
     if (String(r.review || "").toLowerCase().includes(pn)) return true
-    // 4) fallback: reviewer 
     if (String(r.reviewer || r.name || "").toLowerCase().includes(pn)) return true
     return false
   }
 
-  // filteredReviews (apply product filter first, then activeQuery)
+  // --- FILTERING & SORTING PIPELINE ---
   const filteredReviews = useMemo(() => {
-    // apply product filter
-    const productFiltered = selectedProductName
-      ? allReviews.filter((r) => reviewMatchesProduct(r, selectedProductName))
-      : allReviews
+    let result = allReviews.slice() // clone to avoid in-place sort side-effects
 
-    if (!activeQuery) return productFiltered
+    // 1. Filter by Product
+    if (selectedProductName) {
+        result = result.filter((r) => reviewMatchesProduct(r, selectedProductName))
+    }
 
-    const ql = activeQuery.toLowerCase()
-    const matches = productFiltered.filter((r) => {
-      const text = `${stripHtml(r.review || "")} ${r.reviewer || ""} ${r.name || ""}`.toLowerCase()
-      return text.includes(ql)
+    // 2. Filter by Star Rating (New)
+    if (filterStar !== "all") {
+        const target = Number(filterStar)
+        result = result.filter(r => Math.round(Number(r.rating || 0)) === target)
+    }
+
+    // 3. Filter by Search Query (Updated Token Logic)
+    if (activeQuery) {
+        const tokens = getTokens(activeQuery)
+        if (tokens.length > 0) {
+            result = result.filter((r) => {
+                const text = `${stripHtml(r.review || "")} ${r.reviewer || ""} ${r.name || ""}`.toLowerCase()
+                // Return true if ANY token is found (OR logic)
+                return tokens.some(token => text.includes(token))
+            })
+        }
+    }
+
+    // 4. Sort Results
+    result.sort((a, b) => {
+        // A. If searching, prioritize relevance score first
+        if (activeQuery) {
+            const scoreA = scoreReviewForQuery(a, activeQuery)
+            const scoreB = scoreReviewForQuery(b, activeQuery)
+            if (scoreB !== scoreA) return scoreB - scoreA
+            // if scores equal, fallthrough to chosen sort method
+        }
+
+        // B. Apply chosen sort method
+        const dateA = Number(new Date(a.date_created || a.date || 0)) || 0
+        const dateB = Number(new Date(b.date_created || b.date || 0)) || 0
+        const ratingA = Number(a.rating || 0)
+        const ratingB = Number(b.rating || 0)
+
+        switch (sortBy) {
+            case "rating_desc": // Highest Rated
+                if (ratingB !== ratingA) return ratingB - ratingA
+                return dateB - dateA // tie-break with date
+            case "rating_asc": // Lowest Rated
+                if (ratingA !== ratingB) return ratingA - ratingB
+                return dateB - dateA
+            case "oldest":
+                return dateA - dateB
+            case "newest":
+            default:
+                return dateB - dateA
+        }
     })
 
-    // sort by closeness score
-    matches.sort((a, b) => scoreReviewForQuery(b, activeQuery) - scoreReviewForQuery(a, activeQuery))
-    return matches
-  }, [allReviews, activeQuery, selectedProductName])
+    return result
+  }, [allReviews, activeQuery, selectedProductName, filterStar, sortBy])
 
-  // suggestions
+
+  // --- SUGGESTIONS (Updated for Token Logic) ---
   const suggestions = useMemo(() => {
     const q = debouncedQuery.trim()
     if (!q) return []
-    const ql = q.toLowerCase()
-    const source = selectedProductName ? allReviews.filter((r) => reviewMatchesProduct(r, selectedProductName)) : allReviews
+    
+    // Filter source based on current dropdowns (product + stars)
+    let source = allReviews
+    if (selectedProductName) source = source.filter(r => reviewMatchesProduct(r, selectedProductName))
+    if (filterStar !== "all") source = source.filter(r => Math.round(Number(r.rating || 0)) === Number(filterStar))
+
     const scored = []
+    const tokens = getTokens(q)
+    if (tokens.length === 0) return []
+
+    // Find snippet matches
     for (let i = 0; i < source.length; i++) {
       const r = source[i]
       const text = stripHtml(r.review || "")
       const textL = text.toLowerCase()
-      const idx = textL.indexOf(ql)
-      if (idx === -1) continue
+      
+      // Find the first matching token index to grab snippet
+      const firstMatchIndex = tokens.map(t => textL.indexOf(t)).find(idx => idx !== -1)
+      
+      if (firstMatchIndex === undefined) continue // No tokens match
+
       const score = scoreReviewForQuery(r, q)
-      const start = Math.max(0, idx - 30)
+      const start = Math.max(0, firstMatchIndex - 30)
       const snippet = text.slice(start, Math.min(start + 120, text.length)).trim()
       scored.push({ score, snippet, reviewer: r.reviewer || r.name || "Anonymous", date: r.date_created || r.date || "", id: r.id })
     }
+    
     scored.sort((a, b) => b.score - a.score)
+    
+    // Dedupe
     const out = []
     const seen = new Set()
     for (let i = 0; i < scored.length && out.length < 6; i++) {
@@ -238,9 +299,9 @@ export default function ReviewsWidget({ productId = null }) {
       }
     }
     return out
-  }, [allReviews, debouncedQuery, selectedProductName])
+  }, [allReviews, debouncedQuery, selectedProductName, filterStar])
 
-  // client-side pagination for UI
+  // Pagination
   const totalPagesClient = Math.max(1, Math.ceil(filteredReviews.length / perPageView))
   useEffect(() => {
     if (currentPageView > totalPagesClient) setCurrentPageView(1)
@@ -251,14 +312,14 @@ export default function ReviewsWidget({ productId = null }) {
     return filteredReviews.slice(start, start + perPageView)
   }, [filteredReviews, currentPageView, perPageView])
 
-  // Calculate Average Rating for UI Summary
   const averageRating = useMemo(() => {
     if (!filteredReviews.length) return 0
     const sum = filteredReviews.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0)
     return (sum / filteredReviews.length).toFixed(1)
   }, [filteredReviews])
 
-  // handlers
+  // --- HANDLERS ---
+
   function handleSelectSuggestion(snippet) {
     setQuery(snippet)
     setDebouncedQuery(snippet)
@@ -280,29 +341,29 @@ export default function ReviewsWidget({ productId = null }) {
     setActiveQuery("")
     setSuggestionsVisible(false)
     setCurrentPageView(1)
-    // NOTE: We do not reset selectedProductName here, allowing user to clear search but keep product filter
+    // Keep filters, just clear search text
   }
 
-  // --- FIXED LOGIC HERE ---
   function handleProductDropdownChange(e) {
-    const val = e.target.value || ""
-    setSelectedProductName(val)
+    setSelectedProductName(e.target.value || "")
     setCurrentPageView(1)
-    // Removed setQuery/setActiveQuery to prevent search bar population
   }
 
-  // --- UI RENDER HELPERS ---
+  function handleStarFilterChange(e) {
+    setFilterStar(e.target.value)
+    setCurrentPageView(1)
+  }
+
+  function handleSortChange(e) {
+    setSortBy(e.target.value)
+    setCurrentPageView(1)
+  }
+
+  // --- RENDER HELPERS ---
   
-  // SVG Star Icon
   function StarIcon({ className = "w-4 h-4", fill = false }) {
     return (
-      <svg 
-        className={className} 
-        fill={fill ? "currentColor" : "none"} 
-        viewBox="0 0 24 24" 
-        stroke="currentColor" 
-        strokeWidth="1.5"
-      >
+      <svg className={className} fill={fill ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.53.044.739.676.354 1.014l-4.182 3.69a.563.563 0 00-.182.557l1.285 5.385a.557.557 0 01-.81.613L12 17.147l-4.666 2.501a.557.557 0 01-.81-.613l1.285-5.385a.563.563 0 00-.182-.557l-4.182-3.69c-.385-.338-.176-.97.354-1.014l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
       </svg>
     )
@@ -321,28 +382,31 @@ export default function ReviewsWidget({ productId = null }) {
     return <div className="flex gap-0.5">{stars}</div>
   }
 
-  // Helper to render highlighted snippet element
+  // Highlight all tokens in the text
   function highlightMatch(text, q) {
     if (!q) return text
-    const ql = q.toString().trim()
-    if (!ql) return text
-    const parts = []
-    const lower = text.toLowerCase()
-    const needle = ql.toLowerCase()
-    let pos = 0
-    let idx = lower.indexOf(needle, pos)
-    while (idx !== -1) {
-      if (idx > pos) parts.push(<span key={pos + "-pre"}>{text.slice(pos, idx)}</span>)
-      parts.push(<mark key={idx + "-match"} className="bg-yellow-200 rounded-sm">{text.slice(idx, idx + needle.length)}</mark>)
-      pos = idx + needle.length
-      idx = lower.indexOf(needle, pos)
-    }
-    if (pos < text.length) parts.push(<span key={pos + "-tail"}>{text.slice(pos)}</span>)
-    return <>{parts}</>
+    const tokens = getTokens(q)
+    if (tokens.length === 0) return text
+
+    // Very simple split-based highlighter for multiple tokens
+    // We split by regex of all tokens to preserve separators
+    const regex = new RegExp(`(${tokens.map(t => t.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\$&')).join('|')})`, 'gi')
+    const parts = text.split(regex)
+
+    return (
+        <>
+            {parts.map((part, i) => 
+                regex.test(part) ? (
+                    <mark key={i} className="bg-yellow-200 rounded-sm">{part}</mark>
+                ) : (
+                    <span key={i}>{part}</span>
+                )
+            )}
+        </>
+    )
   }
 
-  // --- MAIN RENDER ---
-
+  // --- COMPONENT RENDER ---
   const loadedCount = allReviews.length
   const knownTotal = totalReviewsCount ?? (totalPages ? totalPages * INITIAL_PAGE_SIZE : null)
   const isLoadingInitial = isFetchingAll && loadedCount === 0
@@ -369,83 +433,136 @@ export default function ReviewsWidget({ productId = null }) {
         </div>
       </div>
 
-      {/* 2. Controls & Search */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-12 gap-3">
-        {/* Product Dropdown */}
-        <div className="md:col-span-4 relative">
-           <select 
-             value={selectedProductName} 
-             onChange={handleProductDropdownChange} 
-             className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-           >
-            <option value="">All Products</option>
-            {PRODUCTS.map((p, i) => (
-              <option key={i} value={p}>{p}</option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="md:col-span-6 relative">
-          <div className="relative">
+      {/* 2. Controls, Filters & Search */}
+      <div className="mb-6 space-y-3">
+        
+        {/* Row A: Search Bar */}
+        <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input
-              type="search"
-              aria-label="Search reviews"
-              placeholder='Search keywords (e.g. "anxiety", "sleep")...'
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value)
-                setSuggestionsVisible(true)
-              }}
-              onFocus={() => setSuggestionsVisible(true)}
-              onBlur={() => setTimeout(() => setSuggestionsVisible(false), 200)}
-              className="w-full rounded-lg border border-slate-200 pl-10 pr-4 py-2.5 text-sm shadow-sm focus:border-[#e92727] focus:outline-none focus:ring-1 focus:ring-[#e92727]"
-            />
-          </div>
-
-          {/* Suggestions Dropdown */}
-          {suggestionsVisible && suggestions.length > 0 && (
-            <ul className="absolute left-0 right-0 z-30 mt-1 max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white shadow-xl">
-              {suggestions.map((s, i) => (
-                <li key={i} className="border-b border-slate-50 last:border-none">
-                  <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handleSelectSuggestion(s.snippet)}
-                    className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-semibold text-slate-500">{s.reviewer}</span>
-                        <span className="text-xs text-slate-400">{s.date ? new Date(s.date).toLocaleDateString() : ""}</span>
-                    </div>
-                    <div className="text-sm text-slate-700 line-clamp-2 leading-snug">
-                        {highlightMatch(s.snippet, debouncedQuery || query)}
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="md:col-span-2 flex gap-2">
-            <button onClick={handleSearchButton} className="flex-1 rounded-lg bg-[#e92727] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
-                Search
-            </button>
-            {(activeQuery || selectedProductName) && (
-                <button onClick={handleClearSearch} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors" title="Clear Search">
-                    ✕
+            <div className="flex gap-2">
+                <input
+                    type="search"
+                    aria-label="Search reviews"
+                    placeholder='Search reviews (e.g. "Anxiety relief", "Sleep")...'
+                    value={query}
+                    onChange={(e) => {
+                        setQuery(e.target.value)
+                        setSuggestionsVisible(true)
+                    }}
+                    onFocus={() => setSuggestionsVisible(true)}
+                    onBlur={() => setTimeout(() => setSuggestionsVisible(false), 200)}
+                    className="w-full rounded-lg border border-slate-200 pl-10 pr-4 py-2.5 text-sm shadow-sm focus:border-[#e92727] focus:outline-none focus:ring-1 focus:ring-[#e92727]"
+                />
+                 <button onClick={handleSearchButton} className="rounded-lg bg-[#e92727] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition-colors">
+                    Search
                 </button>
+            </div>
+
+            {/* Suggestions Dropdown */}
+            {suggestionsVisible && suggestions.length > 0 && (
+                <ul className="absolute left-0 right-0 z-30 mt-1 max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white shadow-xl">
+                    {suggestions.map((s, i) => (
+                    <li key={i} className="border-b border-slate-50 last:border-none">
+                        <button
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelectSuggestion(s.snippet)}
+                        className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors"
+                        >
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs font-semibold text-slate-500">{s.reviewer}</span>
+                            <span className="text-xs text-slate-400">{s.date ? new Date(s.date).toLocaleDateString() : ""}</span>
+                        </div>
+                        <div className="text-sm text-slate-700 line-clamp-2 leading-snug">
+                            {highlightMatch(s.snippet, debouncedQuery || query)}
+                        </div>
+                        </button>
+                    </li>
+                    ))}
+                </ul>
             )}
         </div>
+
+        {/* Row B: Filters (Product, Star, Sort) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Filter 1: Product */}
+            <div className="relative">
+                <select 
+                    value={selectedProductName} 
+                    onChange={handleProductDropdownChange} 
+                    className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-[#e92727] focus:outline-none pr-8"
+                >
+                    <option value="">All Products</option>
+                    {PRODUCTS.map((p, i) => <option key={i} value={p}>{p}</option>)}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <svg className="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 8l4 4 4-4" /></svg>
+                </div>
+            </div>
+
+            {/* Filter 2: Stars */}
+            <div className="relative">
+                <select 
+                    value={filterStar} 
+                    onChange={handleStarFilterChange} 
+                    className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-[#e92727] focus:outline-none pr-8"
+                >
+                    <option value="all">All Star Ratings</option>
+                    <option value="5">★★★★★ (5 Stars Only)</option>
+                    <option value="4">★★★★☆ (4 Stars Only)</option>
+                    <option value="3">★★★☆☆ (3 Stars Only)</option>
+                    <option value="2">★★☆☆☆ (2 Stars Only)</option>
+                    <option value="1">★☆☆☆☆ (1 Star Only)</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <svg className="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 8l4 4 4-4" /></svg>
+                </div>
+            </div>
+
+            {/* Filter 3: Sort Order */}
+            <div className="relative">
+                <select 
+                    value={sortBy} 
+                    onChange={handleSortChange} 
+                    className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-[#e92727] focus:outline-none pr-8"
+                >
+                    <option value="newest">Sort: Newest First</option>
+                    <option value="oldest">Sort: Oldest First</option>
+                    <option value="rating_desc">Sort: Highest Rating</option>
+                    <option value="rating_asc">Sort: Lowest Rating</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                    <svg className="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 8l4 4 4-4" /></svg>
+                </div>
+            </div>
+        </div>
+
+        {/* Active Filters Display */}
+        {(activeQuery || selectedProductName || filterStar !== "all") && (
+             <div className="flex flex-wrap gap-2 pt-2">
+                {activeQuery && (
+                    <button onClick={handleClearSearch} className="inline-flex items-center gap-1 rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 hover:bg-yellow-200">
+                        Query: {activeQuery} ✕
+                    </button>
+                )}
+                {selectedProductName && (
+                    <button onClick={() => setSelectedProductName("")} className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200">
+                        Product: {selectedProductName} ✕
+                    </button>
+                )}
+                {filterStar !== "all" && (
+                     <button onClick={() => setFilterStar("all")} className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200">
+                     {filterStar} Stars ✕
+                 </button>
+                )}
+                <button onClick={() => {handleClearSearch(); setSelectedProductName(""); setFilterStar("all")}} className="text-xs text-[#e92727] underline ml-auto">
+                    Reset All
+                </button>
+             </div>
+        )}
       </div>
 
       {/* 3. Info / Status Bar */}
@@ -453,18 +570,14 @@ export default function ReviewsWidget({ productId = null }) {
         <div className="flex items-center gap-2">
              {fetchError && <span className="text-red-600 font-medium">⚠ {fetchError}</span>}
              {!fetchError && (
-                 <>
-                    <span>Showing <strong>{pageSlice.length}</strong> of <strong>{filteredReviews.length}</strong></span>
-                    {activeQuery && <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Query: {activeQuery}</span>}
-                 </>
+                 <span>Showing <strong>{pageSlice.length}</strong> of <strong>{filteredReviews.length}</strong></span>
              )}
         </div>
         <div>
-            <span>Fetch status: </span>
             {isFetchingAll ? (
                 <span className="inline-flex items-center gap-1 text-teal-600 font-medium">
                     <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Updating...
+                    Syncing...
                 </span>
             ) : (
                 <span className="text-slate-400">Up to date</span>
@@ -493,7 +606,7 @@ export default function ReviewsWidget({ productId = null }) {
         {!isLoadingInitial && pageSlice.length === 0 && (
             <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-300">
                 <p className="text-slate-500 text-sm">No reviews found matching your criteria.</p>
-                <button onClick={handleClearSearch} className="mt-2 text-teal-600 text-sm font-medium hover:underline">Clear filters</button>
+                <button onClick={() => {handleClearSearch(); setFilterStar("all"); setSelectedProductName("")}} className="mt-2 text-[#e92727] text-sm font-medium hover:underline">Clear all filters</button>
             </div>
         )}
 
@@ -514,7 +627,8 @@ export default function ReviewsWidget({ productId = null }) {
             </div>
             
             <div className="text-sm text-slate-600 leading-relaxed">
-                {stripHtml(r.review || r.content || "")}
+                {/* Apply highlighting if a query exists */}
+                {activeQuery ? highlightMatch(stripHtml(r.review || r.content || ""), activeQuery) : stripHtml(r.review || r.content || "")}
             </div>
 
             {(r.product_title || r.product_name) && (
@@ -532,7 +646,7 @@ export default function ReviewsWidget({ productId = null }) {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-6">
             <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-600">Rows per page:</span>
-                <select value={perPageView} onChange={(e) => setPerPageView(Number(e.target.value))} className="rounded border border-slate-200 py-1 px-2 text-sm focus:border-teal-500 focus:outline-none">
+                <select value={perPageView} onChange={(e) => setPerPageView(Number(e.target.value))} className="rounded border border-slate-200 py-1 px-2 text-sm focus:border-[#e92727] focus:outline-none">
                     <option value={10}>10</option>
                     <option value={20}>20</option>
                     <option value={50}>50</option>
@@ -543,7 +657,7 @@ export default function ReviewsWidget({ productId = null }) {
             <button
                 onClick={() => setCurrentPageView((p) => Math.max(1, p - 1))}
                 disabled={currentPageView === 1}
-                className={`rounded px-4 py-2 text-sm font-medium transition-colors ${currentPageView === 1 ? "cursor-not-allowed bg-slate-100 text-slate-400" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-teal-600"}`}
+                className={`rounded px-4 py-2 text-sm font-medium transition-colors ${currentPageView === 1 ? "cursor-not-allowed bg-slate-100 text-slate-400" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#e92727]"}`}
             >
                 Previous
             </button>
@@ -553,7 +667,7 @@ export default function ReviewsWidget({ productId = null }) {
             <button
                 onClick={() => setCurrentPageView((p) => Math.min(totalPagesClient, p + 1))}
                 disabled={currentPageView === totalPagesClient}
-                className={`rounded px-4 py-2 text-sm font-medium transition-colors ${currentPageView === totalPagesClient ? "cursor-not-allowed bg-slate-100 text-slate-400" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-teal-600"}`}
+                className={`rounded px-4 py-2 text-sm font-medium transition-colors ${currentPageView === totalPagesClient ? "cursor-not-allowed bg-slate-100 text-slate-400" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#e92727]"}`}
             >
                 Next
             </button>

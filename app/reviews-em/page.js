@@ -359,6 +359,32 @@ export default function ReviewsWidget({ productId = null }) {
     setCurrentPageView(1)
   }
 
+  // ReviewsWidget.js (Vercel App Par)
+// ... existing component logic ...
+
+useEffect(() => {
+    // Function to calculate height and send message to the parent frame
+    const sendHeight = () => {
+        const height = document.body.scrollHeight;
+        if (window.parent) {
+            window.parent.postMessage({
+                height: height,
+                type: 'setIframeHeight'
+            }, '*'); 
+            // '*' means targetOrigin is not specified (use '*' if you don't know the exact domain)
+        }
+    };
+    
+    // 1. Send height on initial load and whenever filteredReviews changes
+    sendHeight();
+
+    // 2. Add an event listener for any window resize (just in case)
+    window.addEventListener('resize', sendHeight);
+    
+    // Clean up the event listener
+    return () => window.removeEventListener('resize', sendHeight);
+}, [filteredReviews]); // Depend on filteredReviews to update height when list changes
+
   // --- RENDER HELPERS ---
   
   function StarIcon({ className = "w-4 h-4", fill = false }) {

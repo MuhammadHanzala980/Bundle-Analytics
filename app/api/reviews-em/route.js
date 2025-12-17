@@ -1,10 +1,4 @@
-// app/api/reviews/route.js
-// Next.js app route - Server-side fast search using WP Comments endpoint (no Redis).
-// - If `q` is present -> use WP REST Comments search: /wp-json/wp/v2/comments?search=...&post=<productId>&page=&per_page=
-// - If `q` is absent and `all=true` -> falls back to paginated full fetch from WooCommerce reviews (safe, but expensive)
-// - If `q` is absent and not `all` -> fetch a single page using WooCommerce reviews endpoint (fast paginated)
-// - Supports query params: q, page, per_page, sort, product_id, verified (all|verified|unverified), all=true
-// - Returns JSON: { success:true, data: [...], pagination: { currentPage, perPage, totalPages, totalReviews } }
+import { NextResponse } from 'next/server'
 
 const DEFAULT_PER_PAGE = 20
 const MAX_PER_PAGE = 100
@@ -62,23 +56,20 @@ async function fetchJsonWithRetries(url, options = {}, retries = MAX_RETRIES) {
 }
 
 function normalizeCommentToReview(c) {
-  // c is WP comment object returned by /wp/v2/comments
-  // normalize to shape used by widget: { id, reviewer, review, date_created, rating, verified, raw }
   const id = c.id ?? null
-  const reviewer = c.author_name || c.author || (c.name ? c.name : "Anonymous")
-  // comment content: WP may return content.rendered
-  const review = (c.content && c.content.rendered) ? c.content.rendered : (c.content || "")
-  const date_created = c.date || c.date_gmt || null
+  const parent_id = c.parent || c.parent_id || 0
+  const reviewer = c.reviewer || c.author_name || c.author || (c.name ? c.name : "Anonymous")
+  const review = (c.content && c.content.rendered) ? c.content.rendered : (c.review || c.content || "")
+  const date_created = c.date_created || c.date || c.date_gmt || null
 
-  // rating can be stored in comment meta or in other fields depending on site
   let rating = 0
   try {
-    if (c.meta && (c.meta.rating !== undefined)) {
+    if (c.rating !== undefined && c.rating !== null && c.rating !== "") {
+      rating = Number(c.rating)
+    } else if (c.meta && (c.meta.rating !== undefined)) {
       rating = Array.isArray(c.meta.rating) ? Number(c.meta.rating[0] ?? 0) : Number(c.meta.rating ?? 0)
     } else if (c.meta && c.meta._rating !== undefined) {
       rating = Number(c.meta._rating ?? 0)
-    } else if (c.rating !== undefined) {
-      rating = Number(c.rating ?? 0)
     } else if (c.author_meta && c.author_meta.rating !== undefined) {
       rating = Number(c.author_meta.rating ?? 0)
     }
@@ -88,10 +79,11 @@ function normalizeCommentToReview(c) {
   if (!Number.isFinite(rating)) rating = 0
   rating = Math.max(0, Math.min(5, Math.round(rating)))
 
-  // verified may be stored in meta keys like 'verified' or 'verified_owner' or 'is_verified'
   let verified = false
   try {
-    if (c.meta) {
+    if (c.verified === true || c.verified === "true" || c.verified === 1) {
+      verified = true
+    } else if (c.meta) {
       const meta = c.meta
       if (meta.verified === "1" || meta.verified === 1 || meta.verified === true) verified = true
       else if (meta.verified_owner === "1" || meta.verified_owner === 1 || meta.verified_owner === true) verified = true
@@ -101,7 +93,39 @@ function normalizeCommentToReview(c) {
     verified = false
   }
 
-  return { id, reviewer, review, date_created, rating, verified, raw: c }
+  return { id, parent_id, reviewer, review, date_created, rating, verified, raw: c }
+}
+
+function nestReviews(flatList) {
+  if (!Array.isArray(flatList)) return []
+  const roots = []
+  const map = new Map()
+  let replyCount = 0
+
+  flatList.forEach(item => {
+    item.replies = []
+    map.set(item.id, item)
+  })
+
+  flatList.forEach(item => {
+    if (item.parent_id && item.parent_id !== 0) {
+      replyCount++
+      const parent = map.get(item.parent_id)
+      if (parent) {
+        console.log(`[API DEBUG] Nesting reply ID ${item.id} under Parent ID ${item.parent_id}`)
+        parent.replies.push(item)
+        parent.replies.sort((a, b) => new Date(a.date_created) - new Date(b.date_created))
+      } else {
+        console.log(`[API DEBUG] Orphan Reply ID ${item.id} (Parent ${item.parent_id} missing from batch)`)
+        roots.push(item)
+      }
+    } else {
+      roots.push(item)
+    }
+  })
+
+  console.log(`[API DEBUG] nestReviews complete. Total items: ${flatList.length}. Identified Replies: ${replyCount}. Roots: ${roots.length}`)
+  return roots
 }
 
 function sortReviews(list = [], sort) {
@@ -121,7 +145,7 @@ export async function GET(request) {
     const pageParam = Number.parseInt(searchParams.get("page") || "1", 10) || 1
     const perPage = Math.min(Number.parseInt(searchParams.get("per_page") || String(DEFAULT_PER_PAGE), 10) || DEFAULT_PER_PAGE, MAX_PER_PAGE)
     const productId = searchParams.get("product_id") || null
-    const verifiedFilter = (searchParams.get("verified") || "all").toLowerCase() // all|verified|unverified
+    const verifiedFilter = (searchParams.get("verified") || "all").toLowerCase()
     const all = searchParams.get("all") === "true"
 
     const siteUrl = process.env.WC_SITE_URL
@@ -132,24 +156,26 @@ export async function GET(request) {
       return new Response(JSON.stringify({ success: false, error: "Missing WC_SITE_URL environment variable" }), { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } })
     }
 
-    // If query present -> use WP Comments search endpoint (fast)
-    if (q) {
-      // Use WP Comments REST endpoint which is optimized to search DB (no fetching all pages)
-      // public endpoint: /wp-json/wp/v2/comments?search=...&post=<productId>&page=&per_page=
+    const useWpCommentsApi = !!q || (!!productId && !all)
+
+    if (useWpCommentsApi) {
       try {
         const url = new URL(`${siteUrl.replace(/\/$/, "")}/wp-json/wp/v2/comments`)
-        url.searchParams.set("search", q)
+
+        if (q) url.searchParams.set("search", q)
         url.searchParams.set("page", String(pageParam))
         url.searchParams.set("per_page", String(perPage))
         url.searchParams.set("status", "approve")
-        url.searchParams.set("type", "review") // WooCommerce comments are type "review"
-        if (productId) url.searchParams.set("post", String(productId))
 
-        // No auth required for public approved comments usually; but allow Basic auth fallback if needed
+        if (productId) {
+          url.searchParams.set("post", String(productId))
+        } else {
+          url.searchParams.set("type", "review")
+        }
+
         const headers = { Accept: "application/json", "Content-Type": "application/json" }
-        // If user has WC keys and WP requires authentication for comments endpoint, attempt Basic auth
         if (wcKey && wcSecret) {
-          try { headers.Authorization = `Basic ${base64Encode(`${wcKey}:${wcSecret}`)}` } catch (e) {}
+          try { headers.Authorization = `Basic ${base64Encode(`${wcKey}:${wcSecret}`)}` } catch (e) { }
         }
 
         const { json: comments, headers: resHeaders } = await fetchJsonWithRetries(url.toString(), { method: "GET", headers })
@@ -159,13 +185,18 @@ export async function GET(request) {
 
         const mapped = (Array.isArray(comments) ? comments : []).map(normalizeCommentToReview)
 
-        // verified filter (on page results)
-        let filtered = mapped
+        const repliesFound = mapped.filter(r => r.parent_id > 0)
+        if (repliesFound.length > 0) {
+          console.log(`[API DEBUG] Found ${repliesFound.length} replies in WP Comments fetch. Sample:`, repliesFound[0])
+        }
+
+        const nested = nestReviews(mapped)
+
+        let filtered = nested
         if (verifiedFilter === "verified") filtered = filtered.filter((r) => r.verified)
         else if (verifiedFilter === "unverified") filtered = filtered.filter((r) => !r.verified)
 
         const sorted = sortReviews(filtered, sort)
-        // cap returned items just in case
         const returned = sorted.slice(0, MAX_RETURN)
 
         return new Response(JSON.stringify({
@@ -174,20 +205,15 @@ export async function GET(request) {
           pagination: { currentPage: pageParam, perPage, totalPages, totalReviews: total }
         }), { status: 200, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } })
       } catch (err) {
-        console.error("Search via WP comments endpoint failed:", err && err.stack ? err.stack : err)
-        return new Response(JSON.stringify({ success: false, error: "Search failed", details: String(err?.message || err) }), { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } })
+        console.error("WP comments endpoint fetch failed:", err && err.stack ? err.stack : err)
+        return new Response(JSON.stringify({ success: false, error: "Fetch failed", details: String(err?.message || err) }), { status: 500, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } })
       }
     }
 
-    // If q absent:
-    // - if not all and not product-specific search, fetch single page from WooCommerce reviews endpoint (fast)
-    // - if all=true -> full fetch across pages (keeps previous robust implementation)
-    // Build WC reviews endpoint base
     const wcBase = `${siteUrl.replace(/\/$/, "")}/wp-json/wc/v3/products/reviews?status=approved${productId ? `&product=${encodeURIComponent(productId)}` : ""}`
     const headers = { Accept: "application/json", "Content-Type": "application/json" }
     if (wcKey && wcSecret) headers.Authorization = `Basic ${base64Encode(`${wcKey}:${wcSecret}`)}`
 
-    // If caller requested a single page (normal widget pagination)
     if (!all) {
       try {
         const page = pageParam > 0 ? pageParam : 1
@@ -196,10 +222,18 @@ export async function GET(request) {
         url.searchParams.set("per_page", String(perPage))
 
         const { json: reviewsOnPage, headers: resHeaders } = await fetchJsonWithRetries(url.toString(), { method: "GET", headers })
-        const customerReviews = (Array.isArray(reviewsOnPage) ? reviewsOnPage : []).filter((r) => !r.parent_id || Number(r.parent_id) === 0)
+        const rawReviews = Array.isArray(reviewsOnPage) ? reviewsOnPage : []
 
-        // verified filter
-        let filtered = customerReviews
+        const mappedReviews = rawReviews.map(normalizeCommentToReview)
+
+        const repliesFound = mappedReviews.filter(r => r.parent_id > 0)
+        if (repliesFound.length > 0) {
+          console.log(`[API DEBUG] Found ${repliesFound.length} replies in WC Reviews fetch.`)
+        }
+
+        const nestedReviews = nestReviews(mappedReviews)
+
+        let filtered = nestedReviews
         if (verifiedFilter === "verified") filtered = filtered.filter((r) => !!r.verified)
         else if (verifiedFilter === "unverified") filtered = filtered.filter((r) => !r.verified)
 
@@ -220,7 +254,6 @@ export async function GET(request) {
       }
     }
 
-    // all=true branch: full fetch across pages (kept for admin exports). This can be slow for very large datasets.
     try {
       let page = 1
       let totalPages = Infinity
@@ -240,11 +273,12 @@ export async function GET(request) {
           break
         }
 
-        const customerReviews = pageJson.filter((r) => !r.parent_id || Number(r.parent_id) === 0)
-        if (customerReviews.length === 0) consecutiveEmptyCustomerPages++
+        const mappedPage = pageJson.map(normalizeCommentToReview)
+
+        if (mappedPage.length === 0) consecutiveEmptyCustomerPages++
         else consecutiveEmptyCustomerPages = 0
 
-        allReviews = allReviews.concat(customerReviews)
+        allReviews = allReviews.concat(mappedPage)
 
         const xTotalPages = resHeaders.get("x-wp-total-pages") || resHeaders.get("X-WP-TotalPages")
         if (xTotalPages) { totalPages = Math.max(1, Number.parseInt(xTotalPages, 10)); totalPagesKnown = true }
@@ -253,28 +287,24 @@ export async function GET(request) {
           if (link) {
             const m = link.match(/<([^>]+)>;\s*rel="last"/)
             if (m) {
-              try { const lastUrl = new URL(m[1]); const lp = Number.parseInt(lastUrl.searchParams.get("page") || "1", 10); if (!Number.isNaN(lp)) { totalPages = lp; totalPagesKnown = true } } catch {}
+              try { const lastUrl = new URL(m[1]); const lp = Number.parseInt(lastUrl.searchParams.get("page") || "1", 10); if (!Number.isNaN(lp)) { totalPages = lp; totalPagesKnown = true } } catch { }
             }
           } else {
             if (pageJson.length < perPage) totalPages = page
           }
         }
 
-        console.info(`Fetched page ${page}. pageItems=${pageJson.length}. customerReviews=${customerReviews.length}. consecutiveEmpty=${consecutiveEmptyCustomerPages}. totalCollected=${allReviews.length}. totalPagesKnown=${totalPagesKnown ? totalPages : "unknown"}`)
-
         if (totalPagesKnown && page >= totalPages) break
         if (!totalPagesKnown && consecutiveEmptyCustomerPages >= MAX_CONSECUTIVE_EMPTY_CUSTOMER_PAGES) {
-          console.info(`Stopping: ${consecutiveEmptyCustomerPages} consecutive empty-customer pages and total unknown.`)
           break
         }
 
         page++
       }
 
-      console.info(`Full fetch finished. Collected ${allReviews.length} customer reviews.`)
+      const nestedAll = nestReviews(allReviews)
 
-      // apply verified filter/sort and cap
-      let matched = allReviews
+      let matched = nestedAll
       if (verifiedFilter === "verified") matched = matched.filter((r) => !!r.verified)
       else if (verifiedFilter === "unverified") matched = matched.filter((r) => !r.verified)
 

@@ -474,9 +474,9 @@ export default function ReviewsWidget({ productId = null }) {
   const loadedCount = allReviews.length
   const knownTotal = totalReviewsCount ?? (totalPages ? totalPages * INITIAL_PAGE_SIZE : null)
   const isLoadingInitial = isFetchingAll && loadedCount === 0
-
+  console.log(allReviews[0])
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 md:p-6 bg-white font-sans text-slate-800">
+    <div className="w-full max-w-5xl mx-auto p-4 md:p-6 bg-[#fdf6ef] font-sans text-slate-800">
 
       {/* 1. Header Summary Section */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
@@ -519,7 +519,7 @@ export default function ReviewsWidget({ productId = null }) {
               }}
               onFocus={() => setSuggestionsVisible(true)}
               onBlur={() => setTimeout(() => setSuggestionsVisible(false), 200)}
-              className="w-full rounded-lg border border-slate-200 pl-10 pr-4 py-2.5 text-sm shadow-sm focus:border-[#e92727] focus:outline-none focus:ring-1 focus:ring-[#e92727]"
+              className="w-full rounded-lg border border-slate-200 pl-10 pr-4 py-2.5 text-sm shadow-sm focus:border-[#e92727] focus:outline-none focus:ring-1 focus:ring-[#e92727] bg-[#fff]"
             />
             <button onClick={handleSearchButton} className="rounded-lg bg-[#e92727] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition-colors">
               Search
@@ -568,7 +568,7 @@ export default function ReviewsWidget({ productId = null }) {
           </div>
 
           {/* Filter 2: Stars */}
-          <div className="relative">
+          {/* <div className="relative">
             <select
               value={filterStar}
               onChange={handleStarFilterChange}
@@ -584,7 +584,7 @@ export default function ReviewsWidget({ productId = null }) {
             <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
               <svg className="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 8l4 4 4-4" /></svg>
             </div>
-          </div>
+          </div> */}
 
           {/* Filter 3: Sort Order */}
           <div className="relative">
@@ -701,6 +701,24 @@ export default function ReviewsWidget({ productId = null }) {
                 <span className="text-xs text-slate-600">{r.product_title || r.product_name}</span>
               </div>
             )}
+
+            <div className="mt-4 flex flex-col gap-3">
+              {r?.replies.length > 0 && (
+                <div className="space-y-2">
+                  {(r?.replies).map((r, idx) => (
+                    <div key={idx} className="rounded-xl border border-slate-100 bg-[#f8ecd2] p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[14px] font-bold text-slate-800">{r.author_name || "Admin"}</div>
+                        <div className="text-xs text-slate-500">
+                          <span>{new Date(r.date_created || r.date || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-sm text-slate-700">{stripHtml(r.content)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </article>
         ))}
       </div>

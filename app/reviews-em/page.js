@@ -422,7 +422,6 @@ export default function ReviewsWidget({ productId = null }) {
   const isLoadingInitial = isFetchingAll && loadedCount === 0
   return (<div className="w-full max-w-5xl mx-auto p-4 md:p-6 bg-[#fdf6ef] font-sans text-slate-800">
 
-    ```
     <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4">
       <div>
         <h2 className="text-xl font-bold tracking-tight text-slate-900">Customer Reviews</h2>

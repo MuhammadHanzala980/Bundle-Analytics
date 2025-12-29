@@ -610,7 +610,7 @@ export default function ReviewsWidget({ productId = null }) {
       {!isLoadingInitial && pageSlice.map((r) => {
         const isHelpful = mostHelpfulIndex.has(String(r.id))
         return (
-          <article key={r.id ?? Math.random()} className={`group rounded-xl border ${isHelpful ? "border-amber-300 bg-[#fffbe6] ring-1 ring-amber-200" : "border-slate-200 bg-white"} p-5 shadow-sm hover:shadow-md transition-shadow`}>
+          <article key={r.id ?? Math.random()} className={`group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow`}>
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
               <div>
                 <h4 className="text-base font-bold text-slate-800">{r.reviewer || r.name || "Anonymous"}</h4>

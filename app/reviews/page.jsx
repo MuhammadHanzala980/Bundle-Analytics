@@ -14,7 +14,9 @@ export default function ReviewsPage() {
   const [replyOpen, setReplyOpen] = useState({})
   const [replyText, setReplyText] = useState({})
   const [actionLoading, setActionLoading] = useState({})
-
+  function stripHtml(input = "") {
+    return String(input).replace(/<\/?[^>]+(>|$)/g, "").replace(/&nbsp;/g, " ").trim()
+  }
   useEffect(() => {
     fetchReviews(currentPage, sort, verified)
   }, [currentPage, sort, verified])

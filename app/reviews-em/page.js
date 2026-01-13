@@ -41,6 +41,7 @@ export default function ReviewsWidget({ productId = null }) {
   const [mostHelpful, setMostHelpful] = useState([])
   const mostHelpfulIdsRef = useRef(new Set())
 
+
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query.trim()), 220)
     return () => clearTimeout(t)
@@ -180,8 +181,7 @@ export default function ReviewsWidget({ productId = null }) {
         const res = await fetch("/reviews/most-helpful.json", { cache: "no-store" })
         if (!res.ok) return
         const data = await res.json()
-        console.log(data)
-        if (cancelled) return
+         if (cancelled) return
         if (!Array.isArray(data)) return
         const normalized = data.map(d => ({ ...d }))
         setMostHelpful(normalized)
@@ -569,7 +569,7 @@ export default function ReviewsWidget({ productId = null }) {
       <div className="flex items-center gap-2">
         {fetchError && <span className="text-red-600 font-medium">⚠ {fetchError}</span>}
         {!fetchError && (
-          <span>Showing <strong>{pageSlice.length}</strong> of <strong>{filteredReviews.length}</strong></span>
+          <span>Showing <strong>{pageSlice.length}</strong> of <strong>{totalReviewsCount}</strong></span>
         )}
       </div>
       <div>

@@ -452,7 +452,7 @@ export default function ReviewsWidget({ productId = null }) {
           <input
             type="search"
             aria-label="Search reviews"
-            placeholder='Search reviews (e.g. "Anxiety relief", "Sleep")...'
+            placeholder='Search (e.g. "Depression", "Anxiety relief", "Productivity", "Stress", etc)'
             value={query}
             onChange={(e) => {
               setQuery(e.target.value)

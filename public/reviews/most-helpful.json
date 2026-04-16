@@ -1,5 +1,47 @@
 [
- {
+  {
+    "id": 847231,
+    "reviewer": "Anonymous",
+    "review": "I used all three formulations in the starter pack. I found that I had different experiences with each and the Create seemed to offer the best one with me feeling calmer and more relaxed.",
+    "product_name": "Microdosing Starter Pack - Capsules"
+  },
+  {
+    "id": 847232,
+    "reviewer": "John Kavanagh",
+    "review": "Great flavor, & honestly never been happier for this extended period of time; mind you all while dealing with an extremely shitty situation, illness, and additionally where most SSRI pharmaceuticals have caused worse side effects, these were fantastic.",
+    "product_name": "Magic Mushroom Gummies"
+  },
+  {
+    "id": 847233,
+    "reviewer": "LISA",
+    "review": "These help with calmness and clarity. They make it easier to say positive things about yourself and believe them.",
+    "product_name": "FOCUS Capsules"
+  },
+  {
+    "id": 847234,
+    "reviewer": "Anonymous",
+    "review": "I have yet to use the create dose of this starter pack, but I am blown away at how improved my focus and clarity is with the middle dose. I feel so relieved and lucky to have found these, thanks microdosify!!!",
+    "product_name": "Microdosing Starter Pack - Capsules"
+  },
+  {
+    "id": 847235,
+    "reviewer": "Karen",
+    "review": "Easy to take and a tasty alt to more pills (if you already take a gazillion supplements). Very subtle. But holy focus, Batman!",
+    "product_name": "Magic Mushroom Gummies"
+  },
+  {
+    "id": 847236,
+    "reviewer": "Lisa",
+    "review": "Prompt professional service and a top notch product ... thanks to Microdosify for lifting 25 years of stress burden. I feel so light again. ❤️",
+    "product_name": "Magic Mushroom Gummies"
+  },
+  {
+    "id": 847237,
+    "reviewer": "Emily",
+    "review": "I have been microdosing these mushrooms for 5 weeks now in the hopes of improving my ADHD symptoms. I am doing the 4 days on, 3 days off dosing schedule. I have noticed an enhanced ability to stay focused on the tasks at hand. I am feeling more motivated as well. The effects are more pronounced on the 'on' days than the 'off' days, but there is some carryover. I think that my focus overall has definitely improved since I started these mushrooms. I don't feel high or out of it at all - just a little more energized and lot more focused.",
+    "product_name": "Magic Mushroom Gummies"
+  },
+  {
     "id": 116465,
     "date_created": "2025-12-23T09:49:02",
     "date_created_gmt": "2025-12-23T17:49:02",
@@ -13,44 +55,44 @@
     "rating": 5,
     "verified": true,
     "reviewer_avatar_urls": {
-        "24": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=24&r=g",
-        "48": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=48&r=g",
-        "96": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=96&r=g"
+      "24": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=24&r=g",
+      "48": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=48&r=g",
+      "96": "https://secure.gravatar.com/avatar/0ca65ac0e82f72c6c42621c8883b39b6c96802aaac4131917df8f2a96e109e11?s=96&r=g"
     },
     "_links": {
-        "self": [
-            {
-                "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/116465",
-                "targetHints": {
-                    "allow": [
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "PATCH",
-                        "DELETE"
-                    ]
-                }
-            }
-        ],
-        "collection": [
-            {
-                "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
-            }
-        ],
-        "up": [
-            {
-                "href": "https://microdosify.com/wp-json/wc/v3/products/1415"
-            }
-        ],
-        "reviewer": [
-            {
-                "embeddable": true,
-                "href": "https://microdosify.com/wp-json/wp/v2/users/3664"
-            }
-        ]
+      "self": [
+        {
+          "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/116465",
+          "targetHints": {
+            "allow": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ]
+          }
+        }
+      ],
+      "collection": [
+        {
+          "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+        }
+      ],
+      "up": [
+        {
+          "href": "https://microdosify.com/wp-json/wc/v3/products/1415"
+        }
+      ],
+      "reviewer": [
+        {
+          "embeddable": true,
+          "href": "https://microdosify.com/wp-json/wp/v2/users/3664"
+        }
+      ]
     },
     "replies": []
-},
+  },
   {
     "id": 113366,
     "parent_id": 0,

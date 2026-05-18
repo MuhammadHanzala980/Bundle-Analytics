@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(node -e \"try { JSON.parse\\(require\\('fs'\\).readFileSync\\('public/reviews/most-helpful.json', 'utf8'\\)\\); console.log\\('Valid JSON'\\); } catch\\(e\\) { console.log\\('Parse error:', e.message\\); }\")",
+      "Bash(node -e \"const s = require\\('fs'\\).readFileSync\\('public/reviews/most-helpful.json', 'utf8'\\); console.log\\(JSON.stringify\\(s.slice\\(25300, 25400\\)\\)\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(node)",
+      "Bash(node fix-json.js)",
+      "Bash(del fix-json.js)"
+    ]
+  }
+}

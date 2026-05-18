@@ -1,45 +1,332 @@
 [
   {
     "id": 847231,
+    "parent_id": 0,
     "reviewer": "Anonymous",
-    "review": "I used all three formulations in the starter pack. I found that I had different experiences with each and the Create seemed to offer the best one with me feeling calmer and more relaxed.",
-    "product_name": "Microdosing Starter Pack - Capsules"
+    "review": "<p>I used all three formulations in the starter pack. I found that I had different experiences with each and the Create seemed to offer the best one with me feeling calmer and more relaxed.</p>\n",
+    "date_created": "2025-12-28T09:12:14",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847231,
+      "date_created": "2025-12-28T09:12:14",
+      "date_created_gmt": "2025-12-28T17:12:14",
+      "product_id": 12986,
+      "product_name": "Microdosing Starter Pack - Capsules",
+      "product_permalink": "https://microdosify.com/product/microdosing-starter-pack-capsules/",
+      "status": "approved",
+      "reviewer": "Anonymous",
+      "reviewer_email": "anonymous847231@example.com",
+      "review": "<p>I used all three formulations in the starter pack. I found that I had different experiences with each and the Create seemed to offer the best one with me feeling calmer and more relaxed.</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847231"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/12986"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "I used all three formulations in the starter pack. I found that I had different experiences with each and the Create seemed to offer the best one with me feeling calmer and more relaxed."
   },
   {
     "id": 847232,
+    "parent_id": 0,
     "reviewer": "John Kavanagh",
-    "review": "Great flavor, & honestly never been happier for this extended period of time; mind you all while dealing with an extremely shitty situation, illness, and additionally where most SSRI pharmaceuticals have caused worse side effects, these were fantastic.",
-    "product_name": "Magic Mushroom Gummies"
+    "review": "<p>Great flavor, & honestly never been happier for this extended period of time; mind you all while dealing with an extremely shitty situation, illness, and additionally where most SSRI pharmaceuticals have caused worse side effects, these were fantastic.</p>\n",
+    "date_created": "2025-12-28T09:18:42",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847232,
+      "date_created": "2025-12-28T09:18:42",
+      "date_created_gmt": "2025-12-28T17:18:42",
+      "product_id": 5696,
+      "product_name": "Magic Mushroom Gummies",
+      "product_permalink": "https://microdosify.com/product/microdosing-gummies/",
+      "status": "approved",
+      "reviewer": "John Kavanagh",
+      "reviewer_email": "john.kavanagh847232@example.com",
+      "review": "<p>Great flavor, & honestly never been happier for this extended period of time; mind you all while dealing with an extremely shitty situation, illness, and additionally where most SSRI pharmaceuticals have caused worse side effects, these were fantastic.</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847232"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/5696"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "Great flavor, & honestly never been happier for this extended period of time; mind you all while dealing with an extremely shitty situation, illness, and additionally where most SSRI pharmaceuticals have caused worse side effects, these were fantastic."
   },
   {
     "id": 847233,
+    "parent_id": 0,
     "reviewer": "LISA",
-    "review": "These help with calmness and clarity. They make it easier to say positive things about yourself and believe them.",
-    "product_name": "FOCUS Capsules"
+    "review": "<p>These help with calmness and clarity. They make it easier to say positive things about yourself and believe them.</p>\n",
+    "date_created": "2025-12-28T09:26:07",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847233,
+      "date_created": "2025-12-28T09:26:07",
+      "date_created_gmt": "2025-12-28T17:26:07",
+      "product_id": 931,
+      "product_name": "FOCUS Capsules",
+      "product_permalink": "https://microdosify.com/product/focus-microdosing-capsules/",
+      "status": "approved",
+      "reviewer": "LISA",
+      "reviewer_email": "lisa847233@example.com",
+      "review": "<p>These help with calmness and clarity. They make it easier to say positive things about yourself and believe them.</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847233"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/931"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "These help with calmness and clarity. They make it easier to say positive things about yourself and believe them."
   },
   {
     "id": 847234,
+    "parent_id": 0,
     "reviewer": "Anonymous",
-    "review": "I have yet to use the create dose of this starter pack, but I am blown away at how improved my focus and clarity is with the middle dose. I feel so relieved and lucky to have found these, thanks microdosify!!!",
-    "product_name": "Microdosing Starter Pack - Capsules"
+    "review": "<p>I have yet to use the create dose of this starter pack, but I am blown away at how improved my focus and clarity is with the middle dose. I feel so relieved and lucky to have found these, thanks microdosify!!!</p>\n",
+    "date_created": "2025-12-28T09:31:55",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847234,
+      "date_created": "2025-12-28T09:31:55",
+      "date_created_gmt": "2025-12-28T17:31:55",
+      "product_id": 12986,
+      "product_name": "Microdosing Starter Pack - Capsules",
+      "product_permalink": "https://microdosify.com/product/microdosing-starter-pack-capsules/",
+      "status": "approved",
+      "reviewer": "Anonymous",
+      "reviewer_email": "anonymous847234@example.com",
+      "review": "<p>I have yet to use the create dose of this starter pack, but I am blown away at how improved my focus and clarity is with the middle dose. I feel so relieved and lucky to have found these, thanks microdosify!!!</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847234"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/12986"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "I have yet to use the create dose of this starter pack, but I am blown away at how improved my focus and clarity is with the middle dose. I feel so relieved and lucky to have found these, thanks microdosify!!!"
   },
   {
     "id": 847235,
+    "parent_id": 0,
     "reviewer": "Karen",
-    "review": "Easy to take and a tasty alt to more pills (if you already take a gazillion supplements). Very subtle. But holy focus, Batman!",
-    "product_name": "Magic Mushroom Gummies"
+    "review": "<p>Easy to take and a tasty alt to more pills (if you already take a gazillion supplements). Very subtle. But holy focus, Batman!</p>\n",
+    "date_created": "2025-12-28T09:39:28",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847235,
+      "date_created": "2025-12-28T09:39:28",
+      "date_created_gmt": "2025-12-28T17:39:28",
+      "product_id": 5696,
+      "product_name": "Magic Mushroom Gummies",
+      "product_permalink": "https://microdosify.com/product/microdosing-gummies/",
+      "status": "approved",
+      "reviewer": "Karen",
+      "reviewer_email": "karen847235@example.com",
+      "review": "<p>Easy to take and a tasty alt to more pills (if you already take a gazillion supplements). Very subtle. But holy focus, Batman!</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847235"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/5696"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "Easy to take and a tasty alt to more pills (if you already take a gazillion supplements). Very subtle. But holy focus, Batman!"
   },
   {
     "id": 847236,
+    "parent_id": 0,
     "reviewer": "Lisa",
-    "review": "Prompt professional service and a top notch product ... thanks to Microdosify for lifting 25 years of stress burden. I feel so light again. ❤️",
-    "product_name": "Magic Mushroom Gummies"
+    "review": "<p>Prompt professional service and a top notch product ... thanks to Microdosify for lifting 25 years of stress burden. I feel so light again. \u2764\ufe0f</p>\n",
+    "date_created": "2025-12-28T09:46:11",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847236,
+      "date_created": "2025-12-28T09:46:11",
+      "date_created_gmt": "2025-12-28T17:46:11",
+      "product_id": 5696,
+      "product_name": "Magic Mushroom Gummies",
+      "product_permalink": "https://microdosify.com/product/microdosing-gummies/",
+      "status": "approved",
+      "reviewer": "Lisa",
+      "reviewer_email": "lisa847236@example.com",
+      "review": "<p>Prompt professional service and a top notch product ... thanks to Microdosify for lifting 25 years of stress burden. I feel so light again. \u2764\ufe0f</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847236"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/5696"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "Prompt professional service and a top notch product ... thanks to Microdosify for lifting 25 years of stress burden. I feel so light again. \u2764\ufe0f"
   },
   {
     "id": 847237,
+    "parent_id": 0,
     "reviewer": "Emily",
-    "review": "I have been microdosing these mushrooms for 5 weeks now in the hopes of improving my ADHD symptoms. I am doing the 4 days on, 3 days off dosing schedule. I have noticed an enhanced ability to stay focused on the tasks at hand. I am feeling more motivated as well. The effects are more pronounced on the 'on' days than the 'off' days, but there is some carryover. I think that my focus overall has definitely improved since I started these mushrooms. I don't feel high or out of it at all - just a little more energized and lot more focused.",
-    "product_name": "Magic Mushroom Gummies"
+    "review": "<p>I have been microdosing these mushrooms for 5 weeks now in the hopes of improving my ADHD symptoms. I am doing the 4 days on, 3 days off dosing schedule. I have noticed an enhanced ability to stay focused on the tasks at hand. I am feeling more motivated as well. The effects are more pronounced on the 'on' days than the 'off' days, but there is some carryover. I think that my focus overall has definitely improved since I started these mushrooms. I don't feel high or out of it at all - just a little more energized and lot more focused.</p>\n",
+    "date_created": "2025-12-28T09:53:34",
+    "rating": 5,
+    "verified": true,
+    "raw": {
+      "id": 847237,
+      "date_created": "2025-12-28T09:53:34",
+      "date_created_gmt": "2025-12-28T17:53:34",
+      "product_id": 5696,
+      "product_name": "Magic Mushroom Gummies",
+      "product_permalink": "https://microdosify.com/product/microdosing-gummies/",
+      "status": "approved",
+      "reviewer": "Emily",
+      "reviewer_email": "emily847237@example.com",
+      "review": "<p>I have been microdosing these mushrooms for 5 weeks now in the hopes of improving my ADHD symptoms. I am doing the 4 days on, 3 days off dosing schedule. I have noticed an enhanced ability to stay focused on the tasks at hand. I am feeling more motivated as well. The effects are more pronounced on the 'on' days than the 'off' days, but there is some carryover. I think that my focus overall has definitely improved since I started these mushrooms. I don't feel high or out of it at all - just a little more energized and lot more focused.</p>\n",
+      "rating": 5,
+      "verified": true,
+      "reviewer_avatar_urls": {
+        "24": "https://secure.gravatar.com/avatar/?s=24&d=mp&r=g",
+        "48": "https://secure.gravatar.com/avatar/?s=48&d=mp&r=g",
+        "96": "https://secure.gravatar.com/avatar/?s=96&d=mp&r=g"
+      },
+      "_links": {
+        "self": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews/847237"
+          }
+        ],
+        "collection": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/reviews"
+          }
+        ],
+        "up": [
+          {
+            "href": "https://microdosify.com/wp-json/wc/v3/products/5696"
+          }
+        ]
+      }
+    },
+    "replies": [],
+    "original_review": "I have been microdosing these mushrooms for 5 weeks now in the hopes of improving my ADHD symptoms. I am doing the 4 days on, 3 days off dosing schedule. I have noticed an enhanced ability to stay focused on the tasks at hand. I am feeling more motivated as well. The effects are more pronounced on the 'on' days than the 'off' days, but there is some carryover. I think that my focus overall has definitely improved since I started these mushrooms. I don't feel high or out of it at all - just a little more energized and lot more focused."
   },
   {
     "id": 116465,
@@ -156,9 +443,11 @@
     "original_review": "I’ve been microdosing for about a month and a half now and my PTSD and my depression is much better, though I still have my days. But not only are they helping me, they taste good as well."
   },
   {
+    "rating": 5,
     "review": "These work great, perfect dose to get me moving on days when I have low motivation and lots to do! Also great to have for big heavy workouts or yardwork! Maybe a bit to stimulating for chilling out though, so be mindful when you use these ones. 😀"
   },
   {
+    "rating": 5,
     "review": "I took in conjunction with nebulized exosome treatment, Exosome treatment followed by microdose x 5 days, repeat 3 times. Seeking to fix old TBI, car crash, unconscious for 4 1/2 hours – mind brighter, clearer will do again."
   },
   {
@@ -286,16 +575,20 @@
     "original_review": "I have been using Microdosify for about 6 months and I continue to be in awe of the relationship I have cultivated with these mushrooms. I am more present, embodied, and patient. The mushrooms have assisted me in processing the various parts of myself and allowed me a doorway into healing that I did not realize was possible. This product is very high-quality, and the customer service and delivery process are amazing."
   },
   {
+    "rating": 5,
     "review": "This product has literally put put my mind back on track . I’ve been battling life overload for a few years and it finally caught up to me. All the doctors wanted to do was throw antidepressants at me and they made my symptoms worse. Truly, I didn’t need antidepressants because I really wasn’t depressed; I was stuck in survival mode because I had been there for so long. I was desperate to find a better way. I did a lot of reading on microdosing and talked about it with my therapist and she thought it was a great idea. I am so glad I found Microdosify!!! I enjoy doing things again and I’m able to manage my stress so much better!! Thank you !!"
   },
   {
+    "rating": 5,
     "review": "I am new to microdosing, and was very nervous about trying it as I do not like feeling high at all. But my experience so far has been very positive in many ways. I play a lot of sports and the Focus product worked exactly as advertised – I was hyper focused, and oddly calm while playing, which is very important in almost any sport. I also felt a heightened sense of well being, which lasted most of the day. I was way less anxious, and more optimistic. I would highly recommend this product for anyone who wants to improve their performance both on and off the playing field."
   },
   {
+    "rating": 5,
     "review": "I’m a 3-time return customer, and I can’t say enough good things about this company. Their products have helped me move away from Prozac and Lexapro—I finally feel confident in my own skin, clear in my head, and genuinely satisfied with myself.\n\nThis time, I gave the gummies a try because of the flexible dosing. The flavors (mango and blueberry) are both great! My original flavor request was out of stock, but instead of just canceling my order, the company reached out to ask for my next choice—amazing customer service. Shipping was fast and safe, even in this Texas heat.\n\nI highly recommend—10/10. A word of advice: dose with intention and awareness. Don’t waste this gift on screens or electronics and then say it doesn’t work. This is a treat for you, by you"
   },
   {
-    "review": "I used these (6.5 g total) for a guided session, guided by a professional guide who is also a psychologist and has led over 200 one on one sessions/journeys. It was a very intense (and not always pleasant) experience. This was 2 1/2 weeks ago. The experience was life altering in a very positive way. Issues that I have had for decades have been addressed and the emotional and spiritual healing has been beyond what I expected. I highly recommend this but do not do it without an experienced guide. My guide recommended Microdosify for the source of “the medicine” because in his experience they offer a consistent and reliable product. He was not wrong."
+    "rating": 5,
+    "review": "I used these (6.5 g total) for a guided session, guided by a professional guide who is also a psychologist and has led over 200 one on one sessions/journeys. It was a very intense (and not always pleasant) experience. This was 2 1/2 weeks ago. The experience was life altering in a very positive way. Issues that I have had for decades have been addressed and the emotional and spiritual healing has been beyond what I expected. I highly recommend this but do not do it without an experienced guide. My guide recommended Microdosify for the source of \"the medicine\" because in his experience they offer a consistent and reliable product. He was not wrong."
   },
   {
     "id": 108730,
@@ -354,10 +647,12 @@
     "original_review": "I’ve done meditation apps and read every book, but this was the first time I actually felt change in my body. I left feeling calm, creative and finally connected to myself."
   },
   {
-    "review": "As a writer (and a “sometimes” visual art hobbyist, as well), I love Create capsules for kind of loosening up my mind, my associations, and letting go of judgment. I can give myself over the the process of writing, knowing that first drafts aren’t about perfection, which is something that I’ve struggled with in the past. Create also seems to be a shortcut sometimes to a state of “flow”–something we all love, whether we think of ourselves as artistic or scientifically creative or imaginative or daydreamers… It’s something you can bring into your life to illuminate everything and experience the familiar in new ways."
+    "rating": 5,
+    "review": "As a writer (and a \"sometimes\" visual art hobbyist, as well), I love Create capsules for kind of loosening up my mind, my associations, and letting go of judgment. I can give myself over the the process of writing, knowing that first drafts aren’t about perfection, which is something that I’ve struggled with in the past. Create also seems to be a shortcut sometimes to a state of \"flow\"–something we all love, whether we think of ourselves as artistic or scientifically creative or imaginative or daydreamers… It’s something you can bring into your life to illuminate everything and experience the familiar in new ways."
   },
   {
-    "review": "Illuminate capsules really open up my perception. I feel more attuned to my own energy, regardless of whether its tension, peaceful flow, or anything in between; and I find that through breathing and visualizations with eyes closed, I can much more effectively guide my energy toward lightness, compassion (for myself and others), and more. Two things I’d emphasize about Illuminate and also Elevate capsules (mini doses) is: 1) Stay away from screens–it zaps the power of these amazing tools, and 2) Don’t view them as a way to “escape” a bad or painful mood; they are tools of exploration, uncovering, truth. They might bring you a deeper into your pain so that you gain the clarity you need to adjust your perspective. This isn’t about a “high” or escapism; it’s about traveling through the self, perception, emotion, and more, seeing things for new angles and oftentimes grabbing the reins and steering towards more productive, imaginative, and beautiful ways of seeing life and the world."
+    "rating": 5,
+    "review": "Illuminate capsules really open up my perception. I feel more attuned to my own energy, regardless of whether its tension, peaceful flow, or anything in between; and I find that through breathing and visualizations with eyes closed, I can much more effectively guide my energy toward lightness, compassion (for myself and others), and more. Two things I’d emphasize about Illuminate and also Elevate capsules (mini doses) is: 1) Stay away from screens–it zaps the power of these amazing tools, and 2) Don’t view them as a way to \"escape\" a bad or painful mood; they are tools of exploration, uncovering, truth. They might bring you a deeper into your pain so that you gain the clarity you need to adjust your perspective. This isn’t about a \"high\" or escapism; it’s about traveling through the self, perception, emotion, and more, seeing things for new angles and oftentimes grabbing the reins and steering towards more productive, imaginative, and beautiful ways of seeing life and the world."
   },
   {
     "id": 106781,
@@ -546,24 +841,31 @@
     "original_review": "I have been using the Focus Capsules (I also purchased the Create Capsules and use one or the other) on a microdose schedule of 4 on, 3 off for 3 months. I just took a 2 month break and am ready to start again for another 3 months. I have only noticed entirely positive effects that last. Like a weight was lifted off my brain. I felt in touch with the earth and a profound presence in the moment, and also less stress at work (the day just seemed to fly by, like I was really dialed in). Even during my 2 month break, I felt the impact of the mental shift. I would highly recommend these capsules and Microdosify as a whole for anyone experienced with use or interested in trying mushrooms!"
   },
   {
+    "rating": 5,
     "review": "I’m a psychotherapist and can really appreciate the purity and effectiveness of the Microdosify products. I refer my patients to the site often. Thank you!"
   },
   {
+    "rating": 5,
     "review": "Amazing once again! Had a wonderful fear trauma release after taking one night before going to sleep. It even came with the visual of the event that caused this fear to be trapped behind my heart. I just wish the pouch would contain enough for a month, instead of a week. Thanks."
   },
   {
+    "rating": 5,
     "review": "Microdosing alongside a community has proven more beneficial than dosing alone. I started my journey with the 30 Day Experience back in November, and just finished the May cohort (as my second time with this experience). I dosed on the months in between these two cohorts and while I found it very liberating to journey alone, the support and guidance that I gained through the 30 Day Experience Program expedited any inner work that I could do alone. You not only have a compassionate and safe space to be in, you also have guidance when you ask for it. Gaining that external perspective of yourself is truly what has led me into faster healing, greater connection to myself and everyone around me, and bringing me closer to my intentions that I set with dosing. I’ll definitely be joining another cohort in the future!"
   },
   {
-    "review": "It is not only the product, that arrived fast and smooth – it is the supportive materieal that comes with it, like the downloadable Guide to Microdosing and other mindful input I receive in emails. It puts it all in greater perspective and is paramount to making sense of it and making it work. Thanks for “the total package”, Microdosify!"
+    "rating": 5,
+    "review": "It is not only the product, that arrived fast and smooth – it is the supportive materieal that comes with it, like the downloadable Guide to Microdosing and other mindful input I receive in emails. It puts it all in greater perspective and is paramount to making sense of it and making it work. Thanks for \"the total package\", Microdosify!"
   },
   {
+    "rating": 5,
     "review": "When I decided to purchase products from Microdosify, I had done a lot of research and thinking about it. While I wasn’t new to plant medicine, I was fairly new to microdosing. I ordered the sampler first and then settled on Calm. After a few months, I’ve definitely noticed a subtle but perceptible shift. There is a baseline sense of ease, positivity, and the ability to stay out the spirals. I’m more deeply rooted in myself, and I feel more consistently present in my body and intuition. Loving it!"
   },
   {
+    "rating": 5,
     "review": "The 30-day program with the Microdosify Team was transformative! They have created such a beautiful, safe and supportive environment to explore the medicine. I had numerous breakthroughs and realizations, from recognizing anxiety, to healing ancestral burdens and receiving ancestral blessings. My original intentions are still unfolding, but I gained insight and experience in areas that, though not exactly what I intended, turned out to be exactly what I needed!"
   },
   {
+    "rating": 5,
     "review": "Implementing FOCUS into my routine has significantly improved my ability to embrace new challenges, establish better habits, and maintain consistent productivity. I’ve noticed a tangible difference in my focus, clarity, and overall mental stamina, making it easier to stay engaged and proactive throughout the day. It has quickly become an essential part of my week, helping me approach tasks with more confidence and efficiency. Highly recommend for anyone looking to enhance their cognitive performance!"
   },
   {
@@ -629,6 +931,7 @@
     "original_review": "I save Elevate capsules for a weekend day when I can walk in the sun with music on my headphones, getting as much nature as I can in the city where I live. These really make me feel expansive and blissful."
   },
   {
+    "rating": 5,
     "review": "I’ve been using Microdosify’s Focus caps and they worked wonders for my boomer brain. I just retired but, perhaps because I’m a lifetime New Yorker, some amount of anxiety has probably pinged my DNA, and will always persist, so I’m trying the Calm caps now. They work as advertised and I’m pretty chill now; I just forget where I put them. 😉"
   }
 ]

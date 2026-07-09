@@ -183,7 +183,11 @@ export default function ReviewsWidget({ productId = null }) {
         const data = await res.json()
          if (cancelled) return
         if (!Array.isArray(data)) return
-        const normalized = data.map(d => ({ ...d }))
+        const normalized = data.map(d => ({
+          ...d,
+          product_name: d.product_name ?? d.raw?.product_name ?? null,
+          product_title: d.product_title ?? d.raw?.product_title ?? null,
+        }))
         setMostHelpful(normalized)
         const ids = new Set(normalized.map(r => String(r.id)))
         mostHelpfulIdsRef.current = ids
